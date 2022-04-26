@@ -8,6 +8,12 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+mongoose.connect('mongodb+srv://Uranium-Batch:aruSjkdGdfhc9MRK@functionup.eel5r.mongodb.net/Blog_Project-1?retryWrites=true&w=majority', {
+    useNewUrlParser: true,
+})
+.then(() => { console.log('Connected to MongoDB') })
+.catch(err => { console.log('Error connecting to MongoDB: ' + err) });
+
 app.use('/', route);
 
 app.listen(process.env.PORT || 3000, function() {
