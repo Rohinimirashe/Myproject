@@ -1,12 +1,11 @@
 const mongoose=require('mongoose')
-require('mongoose-type-email')
-const validEmail=mongoose.SchemaTypes.Email;
+
 const authorSchema =new mongoose.Schema({
-    fName:{
+    firstName:{
         type:String,
         required:true
     },
-    lName:{
+    lastName:{
         type:String,
         required:true  
     },
@@ -15,15 +14,15 @@ const authorSchema =new mongoose.Schema({
         required: true,
         enum: ['Mr', 'Mrs', 'Miss']
     },
-  email:{
-      type:validEmail,
-      required:true,
-      unique:true
-  },
-  password: {
-    type: String,
-    required: true
-}
+    email:{
+        type:String,
+        required:true,
+        unique:true
+    },
+    password: {
+        type: String,
+        required: true
+    }
 },{timestamps:true})
 
-module.exports=mongoose.model('Author',authorSchema)
+module.exports=mongoose.model('Author',authorSchema);

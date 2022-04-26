@@ -1,10 +1,10 @@
 const express = require('express');
+const Author = require('../controllers/authorController');
+const Blog = require('../controllers/blogController');
 
 const router = express.Router();
 
-router.get('/test-me', function (req, res) {
-    res.send('My first ever api!')
-});
+router.post('/authors', Author.addAuthor);
+router.post('/blog', Blog.createBlog);
 
 module.exports = router;
-// adding this comment for no reason
