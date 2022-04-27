@@ -32,4 +32,4 @@ const addAuthor = async (req, res) => {
   }
 }
 
-module.exports.addAuthor = addAuthor;
+module.exports = {addAuthor};

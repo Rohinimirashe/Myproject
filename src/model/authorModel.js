@@ -23,6 +23,6 @@ const authorSchema =new mongoose.Schema({
         type: String,
         required: true
     }
-},{timestamps:true})
+},{timestamps:true});
 
-module.exports=mongoose.model('Author',authorSchema);
+module.exports = mongoose.model('Author',authorSchema);
