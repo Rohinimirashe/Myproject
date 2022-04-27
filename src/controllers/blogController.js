@@ -12,7 +12,7 @@ const createBlog = async (req, res) => {
     let showBlogData = await Blog.create(getData);
     res.status(201).send({ status: true, data: showBlogData });
   } catch (err) {
-    res.status(500).send({ status: false, msg: err.message });
+    res.status(500).send({ status: false, error: err.message });
   }
 }
 
@@ -32,7 +32,7 @@ const getBlogs = async (req, res) => {
     if(getBlogs.length == 0) return res.status(200).send({ status: true, msg: "No such blog exist" });
     res.status(200).send({ status: true, data: getBlogs })
   } catch (err) {
-    res.status(500).send({ status: false, msg: err.message });
+    res.status(500).send({ status: false, error: err.message });
   }
 }
 
@@ -47,6 +47,7 @@ const updateBlog = async (req, res) => {
     let {...data} = req.body;
     if(Object.keys(data).length == 0) return res.status(400).send({ status: false, msg: "Data is required to update a Blog" });
     let blogUpdate;
+    if(data.hasOwnProperty('isDeleted')) return res.status(403).send({ status: false, msg: "Action is Forbidden" })
     if(data.hasOwnProperty('title')){
       blogUpdate = await Blog.findOneAndUpdate(
         {_id: getBlogId},
@@ -94,7 +95,7 @@ const updateBlog = async (req, res) => {
 
     res.status(200).send({ status: true, data: blogUpdate });
   } catch (err) {
-    res.status(500).send({ status: false, msg: err.message });
+    res.status(500).send({ status: false, error: err.message });
   }
 }
 
@@ -112,7 +113,7 @@ const deleteBlogById = async (req, res)=> {
     await Blog.findOneAndUpdate({_id:blogId},{$set: {isDeleted:true, deletedAt: timeStamps}},{new:true})
     res.status(200).send({status:true,msg:"Blog is deleted successfully"})
   } catch (err) {
-    res.status(500).send({ status: false, Error: err.message });
+    res.status(500).send({ status: false, error: err.message });
   }
 };
 
@@ -132,7 +133,7 @@ const deleteBlogs = async (req, res) =>{
 
     res.status(200).send({ status: true, msg: "The blog has been deleted successfully" });
   } catch (err) {
-    res.status(500).send({ status: false, msg: err.message });
+    res.status(500).send({ status: false, error: err.message });
   }
 }
 
