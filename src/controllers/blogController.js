@@ -27,7 +27,7 @@ const getBlogs = async (req, res) => {
       return res.status(200).send({ status: true, data: getAllBlogs })
     }
 
-    let getBlogs = await Blog.find( {$and: [ {$and: [{isDeleted: false}, {isPublished: true}]}, {$or: [ {authorId: data.authorId}, {category: {$in: [data.category]}}, {tags: {$in: [data.tags]}}, {subcategory: {$in: [data.subcategory]}} ] } ]} );
+    let getBlogs = await Blog.find( {$and: [ {isDeleted: false, isPublished: true}, {$or: [ {authorId: data.authorId}, {category: {$in: [data.category]}}, {tags: {$in: [data.tags]}}, {subcategory: {$in: [data.subcategory]}} ] } ]} );
 
     if(getBlogs.length == 0) return res.status(200).send({ status: true, msg: "No such blog exist" });
     res.status(200).send({ status: true, data: getBlogs })
@@ -46,8 +46,9 @@ const updateBlog = async (req, res) => {
 
     let {...data} = req.body;
     if(Object.keys(data).length == 0) return res.status(400).send({ status: false, msg: "Data is required to update a Blog" });
+
     let blogUpdate;
-    if(data.hasOwnProperty('isDeleted')) return res.status(403).send({ status: false, msg: "Action is Forbidden" })
+    if(data.hasOwnProperty('isDeleted')) return res.status(403).send({ status: false, msg: "Action is Forbidden" });
     if(data.hasOwnProperty('title')){
       blogUpdate = await Blog.findOneAndUpdate(
         {_id: getBlogId},
@@ -125,7 +126,7 @@ const deleteBlogs = async (req, res) =>{
     let timeStamps = new Date();
 
     let deletedBlog = await Blog.updateMany( 
-      {$and: [ {$and: [{isDeleted: false}, {isPublished: true}]}, {$or: [ {authorId: data.authorId}, {category: {$in: [data.category]}}, {tags: {$in: [data.tags]}}, {subcategory: {$in: [data.subcategory]}} ] } ]},
+      {$and: [ {isDeleted: false, isPublished: true}, {$or: [ {authorId: data.authorId}, {category: {$in: [data.category]}}, {tags: {$in: [data.tags]}}, {subcategory: {$in: [data.subcategory]}} ] } ]},
       {$set: {isDeleted: true, deletedAt: timeStamps}},
       {new: true}, 
     )
