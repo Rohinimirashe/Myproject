@@ -1,14 +1,18 @@
 const express = require('express');
-const {addAuthor} = require('../controllers/authorController');
-const {createBlog, getBlogs, updateBlog, deleteBlogById, deleteBlogs} = require('../controllers/blogController');
+const {addAuthor,loginAuthor} = require('../controllers/authorController'); //importing authorController
+const {createBlog, getBlogs, updateBlog, deleteBlogById, deleteBlogs} = require('../controllers/blogController'); //importing blogController
+const {authentication,authorization} = require('../middleware/auth'); //importing auth middleware
 
 const router = express.Router();
 
-router.post('/authors', addAuthor);
-router.post('/blog', createBlog);
-router.get('/blogs', getBlogs);
-router.put('/blog/:blogId', updateBlog);
-router.delete('/blog/:blogId', deleteBlogById);
-router.delete('/blogs', deleteBlogs);
+router.post('/authors', addAuthor); //adding author route with post method and calling addAuthor function from authorController
+router.post('/login', loginAuthor); //adding login route with post method and calling loginAuthor function from authorController
+
+//adding blog route with post method and calling 2 middlewares to check authentication and authorization and calling the respective functions from blogController.
+router.post('/blog', authentication, authorization, createBlog); 
+router.get('/blogs', authentication, authorization, getBlogs);
+router.put('/blog/:blogId', authentication, authorization, updateBlog);
+router.delete('/blog/:blogId', authentication, authorization, deleteBlogById);
+router.delete('/blogs', authentication, authorization, deleteBlogs);
 
 module.exports = router;

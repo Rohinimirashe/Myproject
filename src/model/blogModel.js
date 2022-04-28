@@ -1,21 +1,21 @@
 const mongoose = require('mongoose');
-const ObjectId = mongoose.Schema.Types.ObjectId;
+const ObjectId = mongoose.Schema.Types.ObjectId; //creating objectId type 
 
-const blogSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
+const blogSchema = new mongoose.Schema({ //creating schema for blog model 
+  title: { 
+    type: String, //type of data in the field should be string
+    required: true, //title is required field
   },
   body: {
     type: String,
     required: true,
   },
   authorId: {
-    type: ObjectId,
-    ref: 'Author',
-    required: true
+    type: ObjectId, //type of data in the field should be objectId type
+    ref: 'Author', //ref is used to specify the model name to which the field is referring
+    required: true 
   },
-  tags: [String],
+  tags: [String], //tags is an array of string type
   category: {
     type: [String],
     required: true,
@@ -27,8 +27,8 @@ const blogSchema = new mongoose.Schema({
     type: String,
   },
   isDeleted: {
-    type: Boolean,
-    default: false,
+    type: Boolean, //type of data in the field should be boolean
+    default: false, //isDeleted is a default field with value false
   },
   publishedAt: {
     type: String,
@@ -37,6 +37,6 @@ const blogSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   }
-},{timestamps:true})
+},{timestamps:true}) //timestamps is used to add createdAt and updatedAt fields in the schema
 
-module.exports=mongoose.model('Blog',blogSchema)
+module.exports=mongoose.model('Blog',blogSchema) //exporting the schema to use in other files
