@@ -43,7 +43,7 @@ const getBlogs = async (req, res) => {
 
     //Below if statement is to check whether the authorId is present or not in the request query
     if(data.hasOwnProperty('authorId')){
-      let {...tempData} = data;
+      let tempData = data;
       delete(tempData.authorId); //deleting the authorId from the data
       let getValues = Object.values(tempData) //getting the values from the data object
 
@@ -90,7 +90,7 @@ const updateBlog = async (req, res) => {
     if(!findBlogId) return res.status(404).send({ status: false, msg: "No such blog exist" });
 
     //Verify that the document is deleted or not
-    if(findBlogId.isDeleted) return res.status(404).send({ status: false, msg: "Blog is deleted" });
+    if(findBlogId.isDeleted) return res.status(404).send({ status: false, msg: "No such blog found or has already been deleted" });
 
     let {...data} = req.body; //destructuring the data from the request body
 
@@ -98,8 +98,11 @@ const updateBlog = async (req, res) => {
     if(Object.keys(data).length == 0) return res.status(400).send({ status: false, msg: "Data is required to update a Blog" });
 
     //checking that the below data has the attributes provided inside hasOwnProperty()
+    if(data.hasOwnProperty('isDeleted') || data.hasOwnProperty('authorId') || data.hasOwnProperty('deletedAt') || data.hasOwnProperty('publishedAt')) return res.status(403).send({ status: false, msg: "Action is Forbidden" });
+
+    //checking that the below data has the attributes provided inside hasOwnProperty()
     if(data.hasOwnProperty('title')){
-      let {...tempData} = data;
+      let tempData = data;
       delete(tempData.title); //deleting the title from the data
       let getValues = Object.values(tempData) //getting the values from the data object
       if(validString.test(getValues)) return res.status(400).send({ status: false, msg: "Data should not contain numbers" })
@@ -107,54 +110,20 @@ const updateBlog = async (req, res) => {
       let getValues = Object.values(data) //getting the values from the data object
       if(validString.test(getValues)) return res.status(400).send({ status: false, msg: "Data should not contain numbers" })
     }
+    
+    //Updating the blog data in the database based on the blogId and the data provided in the request body
+    let updatedBlog = await Blog.findByIdAndUpdate(
+      {_id: getBlogId},
+      {
+        $push: [ {tags: {$each: data.tags}}, {category: {$each: data.category}}, {subcategory: {$each: data.subcategory}} ],
+        title: data.title,
+        body: data.body,
+        isPublished: data.isPublished,
+      },
+      {new: true}
+    )
 
-    let blogUpdate;
-
-    //checking that the below data has the attributes provided inside hasOwnProperty()
-    if(data.hasOwnProperty('isDeleted') || data.hasOwnProperty('authorId') || data.hasOwnProperty('deletedAt') || data.hasOwnProperty('publishedAt')) return res.status(403).send({ status: false, msg: "Action is Forbidden" });
-    if(data.hasOwnProperty('title')){ //checking that the title is present or not
-      blogUpdate = await Blog.findOneAndUpdate(
-        {_id: getBlogId}, //finding the blogId in the database to update the title
-        {title: data.title}, //updating the title
-        {new: true} //returning the updated data
-      )
-    }
-    if(data.hasOwnProperty('body')){ //checking that the body is present or not
-      blogUpdate = await Blog.findOneAndUpdate(
-        {_id: getBlogId}, //finding the blogId in the database to update the body
-        {body: data.body}, //updating the body
-        {new: true} //returning the updated data
-      )
-    }
-    if(data.hasOwnProperty('tags')){ //checking that the tags is present or not
-      blogUpdate = await Blog.findOneAndUpdate(
-        {_id: getBlogId}, //finding the blogId in the database to update the tags
-        {$push: {tags: {$each: data.tags}}}, //updating the tags by pushing the new tags inside the existing tags
-        {new: true} //returning the updated data
-      )
-    }
-    if(data.hasOwnProperty('category')){ //checking that the category is present or not
-      blogUpdate = await Blog.findOneAndUpdate(
-        {_id: getBlogId}, //finding the blogId in the database to update the category
-        {$push: {category: {$each: data.category}}}, //updating the category by pushing the new category inside the existing category
-        {new: true} //returning the updated data
-      )
-    }
-    if(data.hasOwnProperty('subcategory')){ //checking that the subcategory is present or not
-      blogUpdate = await Blog.findOneAndUpdate(
-        {_id: getBlogId}, //finding the blogId in the database to update the subcategory
-        {$push: {subcategory: {$each: data.subcategory}}}, //updating the subcategory by pushing the new subcategory inside the existing subcategory
-        {new: true} //returning the updated data
-      )
-    }
-    if(data.hasOwnProperty('isPublished')){ //checking that the isPublished is present or not
-      blogUpdate = await Blog.findOneAndUpdate(
-        {_id: getBlogId}, //finding the blogId in the database to update the isPublished
-        {isPublished: data.isPublished}, //updating the isPublished
-        {new: true} //returning the updated data
-      )
-    }
-    if((!findBlogId.isPublished) && blogUpdate.isPublished){ //checking that the isPublished is true or not and the blog is published or not
+    if((!findBlogId.isPublished) && updatedBlog.isPublished){ 
       let timeStamps = new Date(); //getting the current timeStamps
       let updateData = await Blog.findOneAndUpdate(
         {_id: getBlogId}, //finding the blogId in the database to update the publishedAt
@@ -164,7 +133,7 @@ const updateBlog = async (req, res) => {
       return res.status(200).send({ status: true, data: updateData });
     } 
 
-    res.status(200).send({ status: true, data: blogUpdate });
+    res.status(200).send({ status: true, data: updatedBlog });
   } catch (err) {
     res.status(500).send({ status: false, error: err.message });
   }
@@ -177,11 +146,12 @@ const deleteBlogById = async (req, res)=> {
   
     //validating the blogId to check whether it is valid or not
     if(!isValidObjectId(blogId)) return res.status(404).send({ status: false, msg: "Enter a valid blog Id" });
+
     let data = await Blog.findById(blogId); //finding the blogId in the database to check whether it is valid or not
     if (!data)  return res.status(404).send({ status: false, msg: "No such blog found" });
 
     //Verify that the document is deleted or not
-    if (data.isDeleted) return res.status(404).send({ status: false, msg: "Blog already deleted" });
+    if (data.isDeleted) return res.status(404).send({ status: false, msg: "No such blog found or has already been deleted" });
 
     let timeStamps = new Date(); //getting the current timeStamps
 
@@ -201,7 +171,7 @@ const deleteBlogs = async (req, res) =>{
     if(Object.keys(data).length == 0) return res.send({ status: false, msg: "Error!, Details are needed to delete a blog" });
 
     if(data.hasOwnProperty('authorId')){ //checking that the authorId is present or not
-      let {...tempData} = data;
+      let tempData = data;
       delete(tempData.authorId); //deleting the authorId from the data
       let getValues = Object.values(tempData) //getting the values from the data object
 
@@ -216,12 +186,13 @@ const deleteBlogs = async (req, res) =>{
 
     let timeStamps = new Date(); //getting the current timeStamps
 
-    //updating the isDeleted to true, isPublished to false and deletedAt to the current timeStamps
+    // updating the isDeleted to true, isPublished to false and deletedAt to the current timeStamps
     let deletedBlog = await Blog.updateMany( 
-      {$and: [ {isDeleted: false}, {$or: [ {authorId: data.authorId}, {category: {$in: [data.category]}}, {tags: {$in: [data.tags]}}, {subcategory: {$in: [data.subcategory]}}, {isPublished: data.isPublished} ] } ]},
+      {$and: [ {isDeleted: false}, {$or: [ {authorId: data.authorId}, {category: {$in: [data.category]}}, {tags: {$in: [data.tags]}}, {subcategory: {$in: [data.subcategory]}}, {isPublished: JSON.parse(data.isPublished)} ] } ]},
       {isDeleted: true, isPublished: false, deletedAt: timeStamps},
       {new: true}, 
     )
+
 
     //checking if the deletedBlog has updated any data or not
     if(deletedBlog.modifiedCount == 0) return res.status(404).send({ status: false, msg: "No such blog exist or might have already been deleted" })

@@ -37,6 +37,7 @@ const authorization = async (req, res, next) => {
 
     let loggedInUser = decodedToken.authorId; //getting logged in user id from token
     let authorLogging;
+
     if(req.body.hasOwnProperty('authorId')) { //if authorId is present in request body
 
       //checking whether the authorId is valid or not
@@ -52,15 +53,6 @@ const authorization = async (req, res, next) => {
       if(!blogData) return res.status(404).send({ status: false, msg: "Error, Please check Id and try again" });
       authorLogging = blogData.authorId.toString(); //getting authorId from blog data using blogId and converting it to string
     }
-    if(req.query.hasOwnProperty('authorId')){ //if authorId is present in request query
-
-      //checking whether the authorId is valid or not
-      if(!isValidObjectId(req.query.authorId)) return res.status(400).send({ status: false, msg: "Enter a valid author Id" })
-      let blogData = await Blog.findOne({authorId: req.query.authorId}); //getting blog data from database using authorId
-      if(!blogData) return res.status(404).send({ status: false, msg: "Error, Please check Id and try again" });
-      authorLogging = blogData.authorId.toString(); //getting authorId from blog data using authorId and converting it to string
-    }
-
     
     //if authorId is not present in request body or request params or request query
     if(!authorLogging) return res.status(400).send({ status: false, msg: "AuthorId is required" }); 
