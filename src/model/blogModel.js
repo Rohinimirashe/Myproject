@@ -39,4 +39,4 @@ const blogSchema = new mongoose.Schema({ //creating schema for blog model
   }
 },{timestamps:true}) //timestamps is used to add createdAt and updatedAt fields in the schema
 
-module.exports=mongoose.model('Blog',blogSchema) //exporting the schema to use in other files
+module.exports=mongoose.model('Blog',blogSchema) //exporting the schema to use in other files //blogs

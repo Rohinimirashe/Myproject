@@ -67,8 +67,10 @@ const getBlogs = async (req, res) => {
       return res.status(200).send({ status: true, data: getAllBlogs })
     }
 
+    data.isDeleted= false;
+    data.isPublished= true;
     //below code is to get all the blogs from the database that are not deleted and are published based on the certain criteria
-    let getBlogs = await Blog.find( {$and: [ {isDeleted: false, isPublished: true}, {$or: [ {authorId: data.authorId}, {category: {$in: [data.category]}}, {tags: {$in: [data.tags]}}, {subcategory: {$in: [data.subcategory]}} ] } ]} ).populate('authorId');
+    let getBlogs = await Blog.find( data ).populate('authorId');
 
     //check that the getBlogs is empty or not
     if(getBlogs.length == 0) return res.status(404).send({ status: false, msg: "No such blog exist" });
@@ -155,7 +157,7 @@ const deleteBlogById = async (req, res)=> {
     let timeStamps = new Date(); //getting the current timeStamps
 
     //updating the isDeleted to true, isPublished to false and deletedAt to the current timeStamps
-    await Blog.findOneAndUpdate({_id:blogId},{isDeleted:true, isPublished: false, deletedAt: timeStamps},{new:true})
+    await Blog.findOneAndUpdate({_id:blogId},{isDeleted:true, isPublished: false, deletedAt: timeStamps})
     res.status(200).send({status:true,msg:"Blog is deleted successfully"})
   } catch (err) {
     res.status(500).send({ status: false, error: err.message });

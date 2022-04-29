@@ -1,5 +1,6 @@
 const Author = require('../model/authorModel');
 const validateEmail = require('email-validator');
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 //Add author Router handler
@@ -15,6 +16,8 @@ const addAuthor = async (req, res) => {
     if(!data.title) return res.status(400).send({ status: false, msg: "Title is required" });
     if(!data.email) return res.status(400).send({ status: false, msg: "Email is required" });
     if(!data.password) return res.status(400).send({ status: false, msg: "Password is required" });
+
+    data.password = await bcrypt.hash(data.password, 10); 
     
     let validString = /\d/; //validating the string for numbers
 
@@ -28,7 +31,7 @@ const addAuthor = async (req, res) => {
     if(!validTitle.includes(data.title)) return res.status(400).send({ status: false, msg: "Title should be one of Mr, Mrs, Miss" });
 
     //checking if the email is valid by using email-validator package
-    if(!validateEmail.validate(req.body.email)) return res.status(400).send({ status: false, msg: "Enter a valid email" })
+    if(!validateEmail.validate(data.email)) return res.status(400).send({ status: false, msg: "Enter a valid email" })
     
     //checking if the email is already exist
     let uniqueEmail = await Author.findOne({ email: data.email });
@@ -49,12 +52,18 @@ const loginAuthor = async (req, res) => {
     //Below is the validation for the data
     if(Object.keys(data).length == 0) return res.status(400).send({ status: false, msg: "Email and password is required to login" });
 
+    if(!data.email) return res.status(400).send({ status: false, msg: "Email is required" });
+    if(!data.password) return res.status(400).send({ status: false, msg: "Password is required" });
+
     //checking if the email is valid by using email-validator package
     if(!validateEmail.validate(data.email)) return res.status(400).send({ status: false, msg: "Enter a valid email" })
 
     //checking if the email is already exist
     let getAuthorData = await Author.findOne({ email: data.email, password: data.password });
     if(!getAuthorData) return res.status(401).send({ status: false, msg: "Email or password is incorrect" });
+
+    // let checkPassword = await bcrypt.compare(data.password, getAuthorData.password)
+    // if(!checkPassword) return res.status(401).send({ status: false, msg: "Password is incorrect" });
 
     //generating the token for logged in author
     let token = jwt.sign({authorId: getAuthorData._id}, "Blog Project-1", {expiresIn: '1d'});
