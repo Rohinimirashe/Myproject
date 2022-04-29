@@ -43,7 +43,7 @@ const getBlogs = async (req, res) => {
 
     //Below if statement is to check whether the authorId is present or not in the request query
     if(data.hasOwnProperty('authorId')){
-      let tempData = data;
+      let {...tempData} = data;
       delete(tempData.authorId); //deleting the authorId from the data
       let getValues = Object.values(tempData) //getting the values from the data object
 
@@ -102,7 +102,7 @@ const updateBlog = async (req, res) => {
 
     //checking that the below data has the attributes provided inside hasOwnProperty()
     if(data.hasOwnProperty('title')){
-      let tempData = data;
+      let {...tempData} = data;
       delete(tempData.title); //deleting the title from the data
       let getValues = Object.values(tempData) //getting the values from the data object
       if(validString.test(getValues)) return res.status(400).send({ status: false, msg: "Data should not contain numbers" })
@@ -171,7 +171,8 @@ const deleteBlogs = async (req, res) =>{
     if(Object.keys(data).length == 0) return res.send({ status: false, msg: "Error!, Details are needed to delete a blog" });
 
     if(data.hasOwnProperty('authorId')){ //checking that the authorId is present or not
-      let tempData = data;
+      if(!isValidObjectId(data.authorId)) return res.status(400).send({ status: false, msg: "Enter a valid author Id" });
+      let {...tempData} = data;
       delete(tempData.authorId); //deleting the authorId from the data
       let getValues = Object.values(tempData) //getting the values from the data object
 
