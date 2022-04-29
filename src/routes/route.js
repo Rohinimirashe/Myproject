@@ -13,6 +13,6 @@ router.post('/blog', authentication, authorization, createBlog);
 router.get('/blogs', authentication, getBlogs);
 router.put('/blog/:blogId', authentication, authorization, updateBlog);
 router.delete('/blog/:blogId', authentication, authorization, deleteBlogById);
-router.delete('/blogs', authentication, authorization, deleteBlogs);
+router.delete('/blogs', authentication, deleteBlogs);
 
 module.exports = router;

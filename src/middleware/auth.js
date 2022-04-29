@@ -22,6 +22,8 @@ const authentication = (req, res, next) => {
 
 
     if (!decodedToken) return res.status(401).send({ status: false, msg: "Token is incorrect" });
+
+    res.locals.decodedToken = decodedToken;
     next(); //if token is correct then next function will be called respectively
   }
   catch (err){

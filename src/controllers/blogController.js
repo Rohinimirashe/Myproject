@@ -35,7 +35,7 @@ const createBlog = async (req, res) => {
   } catch (err) {
     res.status(500).send({ status: false, error: err.message });
   }
-}
+};
 
 const getBlogs = async (req, res) => {
   try {
@@ -76,7 +76,7 @@ const getBlogs = async (req, res) => {
   } catch (err) {
     res.status(500).send({ status: false, error: err.message });
   }
-}
+};
 
 const updateBlog = async (req, res) => {
   try{
@@ -93,7 +93,7 @@ const updateBlog = async (req, res) => {
     if(findBlogId.isDeleted) return res.status(404).send({ status: false, msg: "No such blog found or has already been deleted" });
 
     let {...data} = req.body; //destructuring the data from the request body
-
+    
     //validating the data for empty values
     if(Object.keys(data).length == 0) return res.status(400).send({ status: false, msg: "Data is required to update a Blog" });
 
@@ -110,7 +110,6 @@ const updateBlog = async (req, res) => {
       let getValues = Object.values(data) //getting the values from the data object
       if(validString.test(getValues)) return res.status(400).send({ status: false, msg: "Data should not contain numbers" })
     }
-    
     //Updating the blog data in the database based on the blogId and the data provided in the request body
     let updatedBlog = await Blog.findByIdAndUpdate(
       {_id: getBlogId},
@@ -137,7 +136,7 @@ const updateBlog = async (req, res) => {
   } catch (err) {
     res.status(500).send({ status: false, error: err.message });
   }
-}
+};
 
 const deleteBlogById = async (req, res)=> {
   try {
@@ -186,22 +185,31 @@ const deleteBlogs = async (req, res) =>{
     }
 
     let timeStamps = new Date(); //getting the current timeStamps
+    let decodedToken = res.locals.decodedToken;   
+    let getBlogData = await Blog.find({
+      $and: [{ authorId: decodedToken.authorId }, data],
+    });
 
-    // updating the isDeleted to true, isPublished to false and deletedAt to the current timeStamps
-    let deletedBlog = await Blog.updateMany( 
-      {$and: [ {isDeleted: false}, {$or: [ {authorId: data.authorId}, {category: {$in: [data.category]}}, {tags: {$in: [data.tags]}}, {subcategory: {$in: [data.subcategory]}}, {isPublished: JSON.parse(data.isPublished)} ] } ]},
+    //if any blog document doesn't match with  query data
+    if (getBlogData.length == 0) {
+      return res.status(404).send({ status: false, msg: "No blog found" });
+    }
+
+    const getNotDeletedBlog = getBlogData.filter(item => item.isDeleted === false);
+
+    if (getNotDeletedBlog.length == 0) {
+      return res.status(404).send({ status: false, msg: "The Blog is already deleted" });
+    }
+
+    let deletedBlogs = await Blog.updateMany(
+      data, 
       {isDeleted: true, isPublished: false, deletedAt: timeStamps},
-      {new: true}, 
-    )
+    );
 
-
-    //checking if the deletedBlog has updated any data or not
-    if(deletedBlog.modifiedCount == 0) return res.status(404).send({ status: false, msg: "No such blog exist or might have already been deleted" })
-
-    res.status(200).send({ status: true, msg: "The blogs has been deleted successfully" });
+    res.status(200).send({ status: true, msg: `${deletedBlogs.modifiedCount} blogs has been deleted` });
   } catch (err) {
     res.status(500).send({ status: false, error: err.message });
   }
-}
+};
 
 module.exports = {createBlog, getBlogs, updateBlog, deleteBlogById, deleteBlogs}; //exporting the functions
