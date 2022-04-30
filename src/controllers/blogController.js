@@ -116,7 +116,7 @@ const updateBlog = async (req, res) => {
     let updatedBlog = await Blog.findByIdAndUpdate(
       {_id: getBlogId},
       {
-        $push: [ {tags: {$each: data.tags}}, {category: {$each: data.category}}, {subcategory: {$each: data.subcategory}} ],
+        $push:  {tags: data.tags, category: data.category, subcategory: data.subcategory} ,
         title: data.title,
         body: data.body,
         isPublished: data.isPublished,
