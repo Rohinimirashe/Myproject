@@ -60,7 +60,7 @@ const loginAuthor = async (req, res) => {
 
     //checking if the email is already exist
     let getAuthorData = await Author.findOne({ email: data.email });
-    if(!getAuthorData) return res.status(401).send({ status: false, msg: "Email or password is incorrect" });
+    if(!getAuthorData) return res.status(401).send({ status: false, msg: "Email is incorrect" });
 
     let checkPassword = await bcrypt.compare(data.password, getAuthorData.password)
     if(!checkPassword) return res.status(401).send({ status: false, msg: "Password is incorrect" });
