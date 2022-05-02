@@ -29,7 +29,7 @@ subcategory: [{
 
 deletedAt :{
     type:Date,
-    default: Date.now
+    default: Date.now()
 },
 
 isDeleted: {

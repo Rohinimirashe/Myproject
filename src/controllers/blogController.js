@@ -10,10 +10,10 @@ const createBlog = async (req, res) => {
     
 
     //checking that the below data is present or not
-    if(!data.title) return res.status(400).send({ status: false, msg: "Title of book is required" });
-    if(!data.body) return res.status(400).send({ status: false, msg: "Description of book is required" });
-    if(!data.authorid) return res.status(400).send({ status: false, msg: "Author ID is required" });
-    if(!data.category) return res.status(400).send({ status: false, msg: "Category of book is required" });
+    if(!getData.title) return res.status(400).send({ status: false, msg: "Title of book is required" });
+    if(!getData.body) return res.status(400).send({ status: false, msg: "Description of book is required" });
+    if(!getData.authorid) return res.status(400).send({ status: false, msg: "Author ID is required" });
+    if(!getData.category) return res.status(400).send({ status: false, msg: "Category of book is required" });
     
     let getAuthorData = await authorModel.findById(getData.authorid);
     console.log(getAuthorData)
@@ -104,7 +104,7 @@ const deleteBlogById = async (req, res) => {
     if (!blog) {
       return res.status(404).send({ status: "false", msg: "No such blog exists " })
     };
-    let blogAuthor = blog.authorId
+    let blogAuthor = blog.authorid
     let decodeAuthorid = req.authorid;
 
     if (blogAuthor != decodeAuthorid) {
