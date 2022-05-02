@@ -25,7 +25,6 @@ const authorSchema =new mongoose.Schema({ //creating schema for author model
     },
     tempPassword: {
         type: String,
-
     },
 },{timestamps:true}); //timestamps is used to add createdAt and updatedAt fields in the schema 
 
