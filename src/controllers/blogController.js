@@ -61,28 +61,32 @@ const putPublished = async function (req, res) {
     let decodeAuthorid =req.authorid;
 
     if (blogAuthor != decodeAuthorid) {
-      return res.status(401).send({ msg: "you can't change the blog " })
+      return res.status(401).send({ msg: "you can't change the blog because you are not authrize " })
     }
     let isDelet = blog.isDeleted;
     if (isDelet == true) {
-      return res.status(400).send({ msg: false, data: "blog document is already deleted" })
+      return res.status(200).send({ msg: true, data: "blog document is already deleted" })
     }
 
     let body = req.body
     let published = blog.isPublished
+    console.log(published)
     if (published == true && Object.keys(body) != 0) {
 
       let result = await blogModel.findOneAndUpdate({ _id: blog._id }, body, { new: true })
-      res.status(200).send({ data: result })
+      console.log(result)
+      res.status(200).send({status: true, data: result })
     }
     else if (published == true && Object.keys(body) == 0) {
       res.status(400).send({ msg: "already published" })
-    } else if (published == false && Object.keys(body) == 0) {
-      let result = await blogModel.findOneAndUpdate({ _id: blog._id }, { isPublished: true, publishedAt: Date.now() }, { new: true })
+    } else if (published == false && Object.keys(body) != 0) {
+      let result = await blogModel.findOneAndUpdate({ _id: blog._id }, {$set: {isDeleted: true}, publishedAt: Date.now() }, { new: true })
+      console.log(result)
       res.send({ data: result })
     } else {
       let result = await blogModel.findOneAndUpdate({ _id: blog._id }, body, { new: true })
-      res.status(200).send({ data: result })
+      console.log(result)
+      res.status(200).send({status: true, data: result })
 
     }
 
@@ -102,20 +106,20 @@ const deleteBlogById = async (req, res) => {
     let blog = await blogModel.findById(blogId)
     console.log(blog)
     if (!blog) {
-      return res.status(404).send({ status: "false", msg: "No such blog exists " })
+      return res.status(404).send({ status: "false", msg: "No such blog exists" })
     };
     let blogAuthor = blog.authorid
     let decodeAuthorid = req.authorid;
 
     if (blogAuthor != decodeAuthorid) {
-      return res.status(401).send({ msg: "you can't change the blog " })
+      return res.status(401).send({ msg: "you can't delete the blog because you are not authrize  " })
     }
     if (!blogId) return res.status(400).send({ status: false, msg: "BlogId is required" })
 
     let data = await blogModel.findById(blogId);
     if (!data) return res.status(404).send({ status: false, msg: "No such blog found" });
 
-    if (data.isDeleted) return res.status(404).send({ status: false, msg: " Already deleted blog Or Blog not exists" });
+    if (data.isDeleted) return res.status(200).send({ status: true, msg: " Already deleted blog Or Blog not exists" });
 
     let timeStamps = new Date();
     await blogModel.findOneAndUpdate({ _id: blogId }, { $set: { isDeleted: true, deletedAt: timeStamps } }, { new: true })
@@ -130,10 +134,10 @@ const deleteBlogsByQuery = async (req, res) => {
   try {
 
     let data = req.query
-    let   authorId = req.query.authorId
+    let authorId = req.query.authorId
    
     if(!authorId){
-      return res.status(400).send({msg : "  authorid must be present"})
+      return res.status(400).send({msg : "authorid must be present"})
     }
     let author = await authorModel.findById(authorId)
     if(!author){
@@ -143,7 +147,7 @@ const deleteBlogsByQuery = async (req, res) => {
     console.log(decodeAuthorid)
     console.log(author._id)
     if(author._id != decodeAuthorid ){
-      return res.status(401).send({ msg: "you can't change the blog " })
+      return res.status(401).send({ msg: "you can't delete the blog because you are not authrize " })
     }
     if (Object.keys(data).length == 0) return res.status(400).send({ status: false, msg: "Error!, Details are needed to delete a blog" });
 

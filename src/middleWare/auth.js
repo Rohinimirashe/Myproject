@@ -12,7 +12,6 @@ const authentication = async function (req, res, next) {
 
         console.log(token);
 
-
         let decodedToken = jwt.verify(token, "functionup-uranium");
         if (!decodedToken)
             return res.status(400).send({ status: false, msg: "token is invalid" })
@@ -22,8 +21,6 @@ const authentication = async function (req, res, next) {
         next()
 
     }
-
-
     catch (err) {
         console.log("This is the error :", err.message)
         res.status(500).send({ msg: "Error", error: err.message })

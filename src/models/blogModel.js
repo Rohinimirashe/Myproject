@@ -4,45 +4,50 @@ const blogSchema = new mongoose.Schema({
 
 title: {
     type:String,
-    required:true
+    required:'Blog title is required',
+    trim: true,
 },
  
 body: {
      type:String,
-     required:true
+     required:'Blog body is required',
+     trim: true,
     },
 
 authorid:{
     type: ObjectId,
+    required:'Blog Author is required',
     ref:"Author"
 },
 tags: [{
-    type: String
+    type: String,
+    trim: true,
 }],
 category: {
     type: String,
-    required: true,
+    required:'Blog category is required',
+    trim: true,
 },
 subcategory: [{
-    type: String
+    type: String,
+    trim: true,
 }],
-
+publishedAt:{
+    type:Date,
+    default: null,
+},  
+isPublished: {
+    type: Boolean,
+    default: false
+},
 deletedAt :{
     type:Date,
-    default: Date.now()
+    default: null,
 },
 
 isDeleted: {
     type:Boolean, 
     default: false
 },
-publishedAt:{
-    type:Date,
-    default: Date.now()
-},  
-isPublished: {
-    type: Boolean,
-    default: false
-}
 },{timestamps:true})
 module.exports = mongoose.model("Blog", blogSchema)

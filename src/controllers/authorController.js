@@ -59,7 +59,7 @@ const loginAuthor = async function (req, res) {
     );
     res.setHeader("x-api-key", token);
     console.log(token);
-    res.status(201).send({ status: true, data: token });
+    res.status(201).send({ status: true, data: {token} });
   }
   catch (err) {
     res.status(500).send({ msg: "Error", error: err.message })
