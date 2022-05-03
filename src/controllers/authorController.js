@@ -37,8 +37,6 @@ const addAuthor = async (req, res) => {
     let uniqueEmail = await Author.findOne({ email: data.email });
     if(uniqueEmail) return res.status(400).send({ status: false, msg: "Email already exist" })
 
-    
-
     let showAuthorData = await Author.create(data);
     res.status(201).send({ status: true, data: showAuthorData });
   } catch(err) {

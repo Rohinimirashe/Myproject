@@ -88,7 +88,6 @@ const getBlogs = async (req, res) => {
 const updateBlog = async (req, res) => {
   try{
     let getBlogId = req.params.blogId; //getting the blogId from the request params
-    if(!getBlogId) return res.status(400).send({ status: false, msg: "Please enter a Blog Id" });
 
     //validating the blogId to check whether it is valid or not
     if(!isValidObjectId(getBlogId)) return res.status(404).send({ status: false, msg: "Enter a valid blog Id" })
@@ -148,7 +147,6 @@ const updateBlog = async (req, res) => {
 const deleteBlogById = async (req, res)=> {
   try {
    let blogId = req.params.blogId; //getting the blogId from the request params
-    if(!blogId) return res.status(400).send({status:false,msg:"BlogId is required"})
   
     //validating the blogId to check whether it is valid or not
     if(!isValidObjectId(blogId)) return res.status(404).send({ status: false, msg: "Enter a valid blog Id" });
@@ -172,12 +170,14 @@ const deleteBlogById = async (req, res)=> {
 const deleteBlogs = async (req, res) =>{
   try{
     let {...data} = req.query; //destructuring the data from the request query
+    let decodedToken = req.decodedToken;   
 
     //validating the data for empty values
     if(Object.keys(data).length == 0) return res.send({ status: false, msg: "Error!, Details are needed to delete a blog" });
 
     if(data.hasOwnProperty('authorId')){ //checking that the authorId is present or not
       if(!isValidObjectId(data.authorId)) return res.status(400).send({ status: false, msg: "Enter a valid author Id" });
+      if(decodedToken.authorId !== data.authorId) return res.status(403).send({ status: false, msg: "Action Forbidden" })
       let {...tempData} = data;
       delete(tempData.authorId); //deleting the authorId from the data
       let getValues = Object.values(tempData) //getting the values from the data object
@@ -192,14 +192,8 @@ const deleteBlogs = async (req, res) =>{
     }
 
     let timeStamps = new Date(); //getting the current timeStamps
-    let decodedToken = res.locals.decodedToken;   
-    let getBlogData = await Blog.find({
-      $and: [{ authorId: decodedToken.authorId }, data],
-    });
-
-    if(data.hasOwnProperty('authorId')){
-      if(decodedToken.authorId !== data.authorId) return res.status(403).send({ status: false, msg: "Action Forbidden" })
-    }
+    
+    let getBlogData = await Blog.find({ authorId: decodedToken.authorId , data });
 
     //if any blog document doesn't match with  query data
     if (getBlogData.length == 0) {
@@ -212,6 +206,7 @@ const deleteBlogs = async (req, res) =>{
       return res.status(404).send({ status: false, msg: "The Blog is already deleted" });
     }
 
+    data.authorId = decodedToken.authorId;
     let deletedBlogs = await Blog.updateMany(
       data, 
       {isDeleted: true, isPublished: false, deletedAt: timeStamps},
