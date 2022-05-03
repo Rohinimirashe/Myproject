@@ -12,7 +12,7 @@ const authorSchema =new mongoose.Schema({ //creating schema for author model
     title: {
         type: String,
         required: true,
-        enum: ['Mr', 'Mrs', 'Miss'] //enum is used to restrict the values of the field to be only one of the given values
+        enum: ['Mr', 'Mrs', 'Miss','Mast'] //enum is used to restrict the values of the field to be only one of the given values
     },
     email:{
         type:String,
