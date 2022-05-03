@@ -28,4 +28,4 @@ const authorSchema =new mongoose.Schema({ //creating schema for author model
     },
 },{timestamps:true}); //timestamps is used to add createdAt and updatedAt fields in the schema 
 
-module.exports = mongoose.model('Author',authorSchema); //exporting the schema to use in other files 
+module.exports = mongoose.model('Author',authorSchema); //exporting the schema to use in other files  

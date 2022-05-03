@@ -19,11 +19,10 @@ const authentication = (req, res, next) => {
     }
 
     let decodedToken = jwt.verify(token, "Blog Project-1"); //verifying token with secret key
-
-
+  
     if (!decodedToken) return res.status(401).send({ status: false, msg: "Token is incorrect" });
 
-    res.locals.decodedToken = decodedToken;
+    req.decodedToken = decodedToken;
     next(); //if token is correct then next function will be called respectively
   }
   catch (err){

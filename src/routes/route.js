@@ -9,10 +9,10 @@ router.post('/authors', addAuthor); //adding author route with post method and c
 router.post('/login', loginAuthor); //adding login route with post method and calling loginAuthor function from authorController
 
 //adding blog route with post method and calling 2 middlewares to check authentication and authorization and calling the respective functions from blogController.
-router.post('/blog', authentication, authorization, createBlog); 
+router.post('/blogs', authentication, authorization, createBlog); 
 router.get('/blogs', authentication, getBlogs);
-router.put('/blog/:blogId', authentication, authorization, updateBlog);
-router.delete('/blog/:blogId', authentication, authorization, deleteBlogById);
+router.put('/blogs/:blogId', authentication, authorization, updateBlog);
+router.delete('/blogs/:blogId', authentication, authorization, deleteBlogById);
 router.delete('/blogs', authentication, deleteBlogs);
 
 module.exports = router;
